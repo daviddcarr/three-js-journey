@@ -1,0 +1,104 @@
+import './style.css'
+import * as THREE from 'three'
+import gsap from 'gsap'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+// Sizes
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
+
+/**
+ * Cursor
+ */
+const cursor = {
+    x: 0,
+    y: 0
+}
+window.addEventListener('mousemove', (e) => {
+    cursor.x = e.clientX / sizes.width - 0.5
+    cursor.y = - (e.clientY / sizes.height - 0.5)
+})
+
+/**
+ * Base
+ */
+// Canvas
+const canvas = document.querySelector('canvas.webgl')
+
+
+// Scene
+const scene = new THREE.Scene()
+
+// Object
+const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1, 5, 5, 5),
+    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+)
+scene.add(mesh)
+
+// Camera
+// 75 is the vertical field of view
+const aspectRatio = sizes.width / sizes.height
+const camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 500)
+// const camera = new THREE.OrthographicCamera(
+//     -1 * aspectRatio, // Left
+//     1 * aspectRatio,  // Right
+//     1, // Top 
+//     -1, // Bottom
+//     0.1, //Closest
+//     500 // Farthest
+// )
+// camera.position.x = 2
+// camera.position.y = 2
+camera.position.z = 3
+console.log(camera.position.length())
+camera.lookAt(mesh.position)
+scene.add(camera)
+
+// Controls
+const controls = new OrbitControls(camera, canvas)
+controls.enableDamping = true
+controls.target = mesh.position
+// controls.target.y = 1
+// controls.update() // Moved to Tick
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({
+    canvas: canvas
+})
+renderer.setSize(sizes.width, sizes.height)
+
+// Animate
+const clock = new THREE.Clock()
+
+const tick = () =>
+{
+    const elapsedTime = clock.getElapsedTime()
+
+    // Update objects
+    // mesh.rotation.y = elapsedTime;
+    // mesh.rotation.x = Math.PI * cursor.y
+    // mesh.rotation.y = Math.PI * cursor.x
+
+    // camera.position.x = cursor.x * 10
+    // camera.position.y = cursor.y * 10
+
+    // Sweet Custom Orbit Camera
+    // camera.position.x = Math.sin(cursor.x * (Math.PI * 2)) * 3
+    // camera.position.z = Math.cos(cursor.x * (Math.PI * 2)) * 3
+    // camera.position.y = cursor.y * 5
+    // camera.lookAt(mesh.position)
+
+    // Adds the Damping effect after being moved here
+    controls.update()
+
+    // Render
+    renderer.render(scene, camera)
+
+    // Call tick again on the next frame
+    window.requestAnimationFrame(tick)
+}
+
+tick()
